@@ -1,0 +1,5 @@
+<task_set>
+    <task id = 0, e = 5, d = 6/>
+    <task id = 1, e = 10, d = 20/>
+    <task id = 2, e = 7, d = 30/>
+</task_set>
