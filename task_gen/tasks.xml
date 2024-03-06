@@ -1,1 +1,6 @@
-<task_set><task id="1" e="5" d="10" dep="[1,2]"><deadline>10</deadline></task></task_set>
+<task_set>
+  <task id="0" e="5" d="5" dep="[2, 3]" />
+  <task id="1" e="5" d="5" dep="[2, 3]" />
+  <task id="2" e="5" d="5" dep="[2, 3]" />
+  <task id="3" e="5" d="5" dep="[2, 3]" />
+</task_set>
