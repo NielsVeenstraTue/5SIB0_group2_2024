@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from data_formats import Task
+from data_formats import Task, List
 import ast
 
 
@@ -19,7 +19,7 @@ def pretty_print_xml(xml_element, indent="  ", newl="\n", level=0):
             xml_element.tail = newl + spaces
 
 
-def save_XML(tasks: Task, file_name: str = "tasks"):
+def save_xml(tasks: List[Task], file_name: str = "tasks"):
     """Stores tasks as XML
     e: execution time
     dl: deadline
@@ -37,27 +37,20 @@ def save_XML(tasks: Task, file_name: str = "tasks"):
     tree.write(file_name + '.xml')
 
 
-def load_XML(file_path):
+def load_xml(file_path):
+    """Loads XML file and stores it to a tasks list"""
     tree = ET.parse(file_path)
     root = tree.getroot()
     tasks = []
     i = 0
     for el in root.findall("task"):
         t = Task()
-        # at = el.attrib.items()
         for name, value in el.attrib.items():
-            # print(f"Attribute: {name}, Value: {value}")
             if name == 'id': t.ID = int(value)
             if name == 'e': t.ExecutionTime = int(value)
             if name == 'dl': t.Deadline = int(value)
             if name == 'dep': t.Dependency = ast.literal_eval(value)
-
-        # element = el.find('deadline')
-        # if element is not None:
-        #     # print(f"Element: {element.tag}, Value: {element.text}")
-        #     t.Deadline=element.text
-
         tasks.append(t)
         i += 1
     return tasks
-# Usage
+

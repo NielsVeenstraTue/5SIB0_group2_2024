@@ -1,24 +1,38 @@
 """Intitial version of task generation/storing"""
 
-from dataclasses import dataclass
-from typing import List
-from XML_functions import save_XML, load_XML
-import xml.etree.ElementTree as ET
+from XML_functions import save_xml, load_xml
 from data_formats import Task
-import numpy as np
+from random import randint
+
+def generate_tasks(cores: int):
+    """Generate random tasks"""
+    scheduleLen = 0 #cycles
+    maxLen = 100 #cycles
+    tasks = []
+    i = 0
+    while scheduleLen<maxLen*0.9: #fill minimum 90% of schedule
+        WCET = randint(1, maxLen-scheduleLen)
+        dl = randint(1, maxLen-WCET - scheduleLen) + WCET + scheduleLen
+        tasks.append(Task(i, WCET, dl, []))
+        i+=1
+        scheduleLen+=WCET
+
+        print(tasks[i-1], )
+    return tasks
 
 
 tasks = []
 for i in range(4):
-    tasks.append(Task(i, i*2, i*3, []))
+    tasks.append(Task(i, i * 2, i * 3, []))
 
-# print(tasks)
-# print(len(tasks))
+save_xml(tasks)
 
-save_XML(tasks)
+loaded_tasks = load_xml('tasks.xml')
 
-loaded_tasks = load_XML('tasks.xml')
-# print(loaded_tasks)
+print(loaded_tasks == tasks)
+
+generate_tasks(1)
 
 
-print(loaded_tasks==tasks)
+
+
