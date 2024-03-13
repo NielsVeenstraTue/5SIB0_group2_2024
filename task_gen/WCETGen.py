@@ -22,7 +22,7 @@ def constructWCETDistribution(numOfTasks, numOfProcessors, deadline, minWCET, ma
     return array
 
 
-def fixWCET(sequence, parallelUnits, maxTime, minValue, maxValue):
+def fixWCET(sequence, parallelUnits, maxTime, minValue):
     # Calculate the current sum of the array
     currentSum = np.sum(sequence)
 
