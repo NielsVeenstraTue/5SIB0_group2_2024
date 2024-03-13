@@ -9,11 +9,11 @@ np.random.seed(0)
 def constructTaskDependencyDistribution(numOfTasks, numOfDependencies, minDependence, maxDependence):
 
     # Generate # of dependences based on the Beta Distribution
-    # Alpha parameter chosen arbitrarily so that we at least have one 22-dependence occurence
+    # Alpha parameter chosen arbitrarily so that we at least have one maxDependence-dependence occurence
     alpha = 0.085
     # Arbirtrary mean of distribution based on the number of tasks and total dependences
     desMean = numOfDependencies/numOfTasks
-    # Generate random values within the range [0, 22]
+    # Generate random values within the range [minDependence, maxDependence]
     array = maxDependence * np.random.beta(alpha, alpha*(maxDependence - desMean)/(desMean - minDependence), numOfTasks)
     # Round from float to int and convert from array to list
     array = list((np.round(array)).astype(np.int32))
