@@ -29,8 +29,8 @@ def save_xml(tasks: List[Task], file_name: str = "tasks"):
     for t in tasks:
         task = ET.SubElement(root, 'task', id=str(t.ID), e=str(t.ExecutionTime), dl=str(t.Deadline),
                              dep=str(t.Dependency))
-        d = ET.SubElement(task, 'deadline')
-        d.text = '10'
+        # d = ET.SubElement(task, 'deadline')
+        # d.text = '10'
 
     tree = ET.ElementTree(root)
     pretty_print_xml(root)
