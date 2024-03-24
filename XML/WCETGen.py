@@ -1,24 +1,43 @@
 import random
 import numpy as np
 
-# Set seed for reproducability
-random.seed(0)
-np.random.seed(0)
 
-
-def constructWCETDistribution(numOfTasks, numOfProcessors, deadline, minWCET, maxWCET, percentage):
-
-    # Generate WCETs based on the Beta Distribution
-    # Alpha parameter chosen arbitrarily so that we at least have total range from min to max WCET
-    alpha = 0.0085
-    # Arbirtrary mean of distribution based on the number of tasks and available processors
-    desMean = percentage * (deadline/numOfTasks) * numOfProcessors
-    # Generate random values within the range [minWCET, maxWCET]
-    array = (maxWCET - minWCET) * np.random.beta(alpha, alpha*(maxWCET - desMean)/(desMean - minWCET), numOfTasks) + minWCET
-    # Check if total execution time is less than deadline
-    array = fixWCET(array, numOfProcessors, percentage * deadline, minWCET, maxWCET)
+def constructWCETDistribution(numOfTasks, numOfProcessors, deadline, minWCET, maxWCET, criticals, percentage, taskBudget, critTaskBudget):
+    # Non-critical task deadlines
+    taskDeadline = deadline * taskBudget
     
-    return array
+    # Generate WCETs based on the Beta Distribution
+    alpha = 0.1
+    # Arbirtrary mean of distribution based on the number of tasks and available processors
+    desMean = percentage * (taskDeadline/numOfTasks) * numOfProcessors
+    # Generate random values within the range [minWCET, maxWCET]
+    array = (maxWCET - minWCET) * np.random.beta(alpha, alpha*(maxWCET - desMean)/(desMean - minWCET), (numOfTasks-criticals)) + minWCET
+    # Check if total execution time is less than deadline
+    array = fixWCET(array, numOfProcessors, percentage * taskDeadline, minWCET, maxWCET)
+    # Deadlines list
+    deadlines = [taskDeadline]*(numOfTasks-criticals)
+    if criticals != 0:
+        # Critical task deadlines
+        critTaskDeadline = deadline * critTaskBudget
+        # Arbirtrary mean of distribution based on the number of tasks and available processors
+        critDesMean = percentage * (critTaskDeadline/numOfTasks) * numOfProcessors
+        # Generate random values within the range [minWCET, maxWCET]
+        critArray = (maxWCET - minWCET) * np.random.beta(alpha, alpha*(maxWCET - critDesMean)/(critDesMean - minWCET), criticals) + minWCET
+        # Check if total execution time is less than deadline
+        critArray = fixWCET(critArray, numOfProcessors, percentage * critTaskDeadline, minWCET, maxWCET)
+        # Deadlines list
+        critDeadlines = [critTaskDeadline]*criticals
+        
+        array = np.concatenate((array, critArray), axis=0).tolist()
+        deadlines = deadlines + critDeadlines
+        
+    temp = list(zip(array, deadlines))
+    random.shuffle(temp)
+    res1, res2 = zip(*temp)
+    # res1 and res2 come out as tuples, and so must be converted to lists.
+    array, deadlines = list(res1), list(res2)
+
+    return [array, deadlines]
 
 
 def fixWCET(sequence, parallelUnits, deadline, minValue, maxTime):
@@ -36,18 +55,3 @@ def fixWCET(sequence, parallelUnits, deadline, minValue, maxTime):
         difference +=minValue
     
     return sequence     
-
-
-# For the example of NXT Motion
-num_tasks = 4301
-num_processors = 11
-max_time = 7.2e-5
-min_WCET = 1e-8
-max_WCET = 2.25e-6
-utilization = 0.75
-array = constructWCETDistribution(num_tasks, num_processors, max_time, min_WCET, max_WCET, utilization)
-
-print("Sum of the array:", np.sum(array))
-print("Average time per core of the array:", np.sum(array)/num_processors)
-print("Max of the array:", np.max(array))
-print("Min of the array:", np.min(array))

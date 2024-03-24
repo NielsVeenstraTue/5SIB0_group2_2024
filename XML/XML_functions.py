@@ -32,7 +32,7 @@ def save_xml(tasks: List[Task], file_name: str = "tasks"):
                              dep=str(t.Dependency))
     tree = ET.ElementTree(root)
     pretty_print_xml(root)  # do layout magic
-    tree.write(file_name + '.xml')  # Save to the required layout
+    tree.write('Tasksets/' + file_name + '.xml')  # Save to the required layout
 
 
 def load_xml(file_path):
@@ -45,8 +45,8 @@ def load_xml(file_path):
         t = Task()
         for name, value in el.attrib.items():
             if name == 'id': t.ID = int(value)
-            if name == 'e': t.ExecutionTime = int(value)
-            if name == 'dl': t.Deadline = int(value)
+            if name == 'e': t.ExecutionTime = float(value)
+            if name == 'dl': t.Deadline = float(value)
             if name == 'dep': t.Dependency = ast.literal_eval(value)
         tasks.append(t)
         i += 1

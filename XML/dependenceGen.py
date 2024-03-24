@@ -1,16 +1,10 @@
 import random
 import numpy as np
 
-# Set seed for reproducability
-random.seed(0)
-np.random.seed(0)
-
-
-def constructTaskDependencyDistribution(numOfTasks, numOfDependencies, minDependence, maxDependence):
+def constructTaskDependencyDistribution(numOfTasks, numOfDependencies, minDependence, maxDependence, alpha):
 
     # Generate # of dependences based on the Beta Distribution
-    # Alpha parameter chosen arbitrarily so that we at least have one maxDependence-dependence occurence
-    alpha = 0.085
+    
     # Arbirtrary mean of distribution based on the number of tasks and total dependences
     desMean = numOfDependencies/numOfTasks
     # Generate random values within the range [minDependence, maxDependence]
@@ -60,16 +54,15 @@ def fixFirstDependences(sequence, maxValue):
             
     return sequence
 
-
-# For the example of NXT Motion
-num_tasks = 4301
-num_dependences = 4095
-min_dependence = 0
-max_dependence = 22
-array = constructTaskDependencyDistribution(num_tasks, num_dependences, min_dependence, max_dependence)
-
-print(f"First {max_dependence} values of the array: {array[:max_dependence]}")
-print("Sum of the array:", sum(array))
-print("Max of the array:", max(array))
-print("Min of the array:", min(array))
-print("Occurences in array:", [array.count(i) for i in range(max(array)+1)])
+def createDependenceLists(sequence):
+    
+    rng = np.random.default_rng()
+    dependenceList = list()
+    for i in range(len(sequence)):
+        if sequence[i] == 0:
+            dependenceList.append([])
+        else:
+            np.random.seed(i)
+            rand_dep = rng.choice(i, size=sequence[i], replace=False).tolist()
+            dependenceList.append(sorted(rand_dep))
+    return dependenceList
