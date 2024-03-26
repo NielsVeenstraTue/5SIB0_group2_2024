@@ -1,0 +1,9 @@
+<task_set>
+    <task id = "0" e = "1" r = "0" dl = "10"/>
+    <task id = "1" e = "2" r = "0" dl = "7"/>
+    <task id = "2" e = "3" r = "1" dl = "3"/>
+    <task id = "3" e = "1" r = "1" dl = "4"/>
+    <task id = "4" e = "2" r = "0" dl = "5"/>
+    <task id = "5" e = "1" r = "1" dl = "6"/>
+    <task id = "6" e = "1" r = "0" dl = "6"/>
+</task_set>
