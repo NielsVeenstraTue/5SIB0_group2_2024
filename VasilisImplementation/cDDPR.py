@@ -11,12 +11,18 @@ def xml2list(file):
     # Get the file as input
     with open(file, 'r') as f:
         data = f.read()
-    
     task_set = bs(data, "xml")
-    
     tasks = task_set.find_all('task')
-    
     return tasks
+
+def dep2list(file):
+    # Get the file as input
+    with open(file, 'r') as f:
+        data = f.read()
+    dependencies_set = bs(data, "xml")
+    dependencies = dependencies_set.find_all('dependency')
+    return dependencies
+
 
 def convertDep2dict(dependencies):
     # Convert dependencies xml to working dictionary format
@@ -24,7 +30,7 @@ def convertDep2dict(dependencies):
     successors = []
     dictionary = {}
     for id, task in enumerate(dependencies):
-        predecessors.append(task['pre'])
+        predecessors.append(task['pred'])
         successors.append(task['succ'])
     
     for pred, succ in zip(predecessors, successors):
@@ -74,7 +80,7 @@ def computeDueDatePerResource(task_set, dependencies, tasks_per_resource, depend
             if task["id"] not in dependencies_per_resource[resources].keys():
                 # If it isn't but is executed in this resource:
                 if task["id"] in tasks_per_resource[resources]:
-                    due_dates[task["id"]] = float(task["dl"])
+                    due_dates[task["id"]] = float(task["d"])
             # Else
             else:
                 # Get successors on this resource and sort them as needed
@@ -86,7 +92,7 @@ def computeDueDatePerResource(task_set, dependencies, tasks_per_resource, depend
                 for succ_idx, succ_due_date in successor_due_dates_ordered:
                     if succ_due_date <= dd_t: dd_t = succ_due_date - float(task_set[int(succ_idx)]["e"])
                     else: dd_t = dd_t - float(task_set[int(succ_idx)]["e"])
-                temp_due_date.append(min(dd_t, float(task["dl"])))
+                temp_due_date.append(min(dd_t, float(task["d"])))
         # Assign the tightest due date out of all the resources to the task
         if temp_due_date: due_dates[task["id"]] = min(temp_due_date)    
         
@@ -94,7 +100,7 @@ def computeDueDatePerResource(task_set, dependencies, tasks_per_resource, depend
 
 
 taskset = xml2list(T_xml)
-deps = xml2list(D_xml)
+deps = dep2list(D_xml)
 dependencies = convertDep2dict(deps)
 print(dependencies)
 numResources = max([int(task["r"]) for task in taskset]) + 1

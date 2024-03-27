@@ -1,11 +1,11 @@
-<task_set>
-    <task pre = "0" succ = "1"/>
-    <task pre = "0" succ = "2"/>
-    <task pre = "0" succ = "3"/>
-    <task pre = "0" succ = "4"/>
-    <task pre = "0" succ = "5"/>
-    <task pre = "0" succ = "6"/>
-    <task pre = "3" succ = "5"/>
-    <task pre = "3" succ = "6"/>
-    <task pre = "4" succ = "6"/>
-</task_set>
+<dependencies>
+    <dependency pred = "0" succ = "1"/>
+    <dependency pred = "0" succ = "2"/>
+    <dependency pred = "0" succ = "3"/>
+    <dependency pred = "0" succ = "4"/>
+    <dependency pred = "0" succ = "5"/>
+    <dependency pred = "0" succ = "6"/>
+    <dependency pred = "3" succ = "5"/>
+    <dependency pred = "3" succ = "6"/>
+    <dependency pred = "4" succ = "6"/>
+</dependencies>
