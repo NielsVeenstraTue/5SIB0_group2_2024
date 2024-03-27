@@ -57,10 +57,10 @@ def createDependenceLists(sequence):
     rng = np.random.default_rng()
     dependenceList = list()
     for i in range(len(sequence)):
-        if sequence[i] == 0:
-            dependenceList.append([])
-        else:
-            np.random.seed(i)
+        if sequence[i] != 0:
             rand_dep = rng.choice(i, size=sequence[i], replace=False).tolist()
-            dependenceList.append(sorted(rand_dep))
+            rand_dep = sorted(rand_dep)
+            for predeccessor in rand_dep:
+                dependenceList.append([predeccessor, i])
+           
     return dependenceList
