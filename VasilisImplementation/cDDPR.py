@@ -40,39 +40,63 @@ def convertDep2dict(dependencies):
  
 def splitTasksPerResource(task_set, dependencies, num_of_resources):
     # For duedate calculation split tasks and their dependencies per resource
-    task_set_per_resource = [[] for _ in range(num_of_resources)]
-    dependencies_per_resource = [[] for _ in range(num_of_resources)]
+    tasks_per_resource = [[] for _ in range(num_of_resources)]
+    dependencies_per_resource = [{} for _ in range(num_of_resources)]
     
     for id, task in enumerate(task_set):
         task_resource = task['r']
-        task_set_per_resource[int(task_resource)].append(task)
+        tasks_per_resource[int(task_resource)].append(task['id'])
     
+    for id, task_id in enumerate(dependencies):
+        task = task_set[int(task_id)]
+        task_resource = task['r']
+        for items in dependencies[task_id]:
+            succ_task = task_set[int(items)]
+            succ_task_resource = succ_task['r']
+            if task_id in dependencies_per_resource[int(succ_task_resource)]:
+                dependencies_per_resource[int(succ_task_resource)][task_id].append(succ_task['id'])
+            else:
+                dependencies_per_resource[int(succ_task_resource)][task_id] = [succ_task['id']]
     
-    
-    
-    return task_set_per_resource, dependencies_per_resource 
+    return tasks_per_resource, dependencies_per_resource 
  
-def computeDueDatePerResource(task_set, dependencies, num_of_resources):
 
-    due_dates = [[] for _ in range(num_of_resources)]
-    known_successors = [[] for _ in range(num_of_resources)]
-    for id, task in enumerate(task_set):
+def computeDueDatePerResource(task_set, dependencies, tasks_per_resource, dependencies_per_resource, num_of_resources):
+
+
+    due_dates = {}
+
+    
+    # Traverse the task set from the sink node to the source node in topological order
+    for task in reversed(task_set):
+        print(task)
+        
+        for resources in range(num_of_resources):
+            if task["id"] in tasks_per_resource[resources]:
+                if task["id"] not in dependencies_per_resource[resources].keys():
+                    due_dates[task["id"]] = task["dl"]
+                #else:
+                #    for succ_task in 
+        
 
         # Get its binding resource
         task_resource = task['r']
     
     # Get all immediate successors on the same resource
-    d_t = task["dl"]
-    dd_t = d_t
+    d_t = float(task["dl"])
+    dd_t = float("inf")
 
     return min(dd_t, d_t)
 
 
-taskset = xml2list(T_xml)
-deps = xml2list(D_xml)
-dependencies = convertDep2dict(deps)
-print(dependencies)
-
+# taskset = xml2list(T_xml)
+# deps = xml2list(D_xml)
+# dependencies = convertDep2dict(deps)
+# print(dependencies)
+# tasks_per_resource, dependencies_per_resource = splitTasksPerResource(taskset, dependencies, 2)
+# print(tasks_per_resource)
+# print(dependencies_per_resource)
+#computeDueDatePerResource(taskset, dependencies, tasks_per_resource, dependencies_per_resource, 2)
 
 def schedule(file):
 
