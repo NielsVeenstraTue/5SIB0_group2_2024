@@ -24,8 +24,8 @@ def convertDep2dict(dependencies):
     successors = []
     dictionary = {}
     for id, task in enumerate(dependencies):
-        predecessors.append(int(task['pre']))
-        successors.append(int(task['succ']))
+        predecessors.append(task['pre'])
+        successors.append(task['succ'])
     
     for pred, succ in zip(predecessors, successors):
         if pred in dictionary:
@@ -35,15 +35,33 @@ def convertDep2dict(dependencies):
     
     for key in dictionary:
         dictionary[key].sort()
-        
-    print(dictionary)
-        
-        
+         
     return dictionary
  
-def computeDueDate(task_set, dependencies, resources, task_id, resource):
+def splitTasksPerResource(task_set, dependencies, num_of_resources):
+    # For duedate calculation split tasks and their dependencies per resource
+    task_set_per_resource = [[] for _ in range(num_of_resources)]
+    dependencies_per_resource = [[] for _ in range(num_of_resources)]
+    
+    for id, task in enumerate(task_set):
+        task_resource = task['r']
+        task_set_per_resource[int(task_resource)].append(task)
+    
+    
+    
+    
+    return task_set_per_resource, dependencies_per_resource 
+ 
+def computeDueDatePerResource(task_set, dependencies, num_of_resources):
 
-    task = task_set[task_id]
+    due_dates = [[] for _ in range(num_of_resources)]
+    known_successors = [[] for _ in range(num_of_resources)]
+    for id, task in enumerate(task_set):
+
+        # Get its binding resource
+        task_resource = task['r']
+    
+    # Get all immediate successors on the same resource
     d_t = task["dl"]
     dd_t = d_t
 
@@ -53,7 +71,7 @@ def computeDueDate(task_set, dependencies, resources, task_id, resource):
 taskset = xml2list(T_xml)
 deps = xml2list(D_xml)
 dependencies = convertDep2dict(deps)
-
+print(dependencies)
 
 
 def schedule(file):
