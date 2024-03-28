@@ -12,6 +12,15 @@ class Task:
     """
     ID: int=-1
     ExecutionTime: int=-1
+    Resource: int=-1
     Deadline: int=-1
-    Dependency: List= field(default_factory=lambda: [])
 
+@dataclass
+class Dependency:
+    """Save task.
+    Data:
+    pred (int): ID of the predeccessor task
+    succ (int): ID of the successor task
+    """
+    pred: int=-1
+    succ: int=-1

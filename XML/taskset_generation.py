@@ -1,7 +1,7 @@
 """Initial version of all taskset generations"""
 
-from XML_functions import save_xml, load_xml
-from data_formats import Task
+from XML_functions import save_xml, save_dep_xml
+from data_formats import Task, Dependency
 import dependenceGen
 import WCETGen
 import dependenceGenSynth
@@ -31,13 +31,18 @@ def create_load_excel(xlsx_loc):
 
     return df
 
-def scenarioGeneration(dependencies, WCETarray, deadlines, name):
+def scenarioGeneration(fileLocation, dependencies, WCETarray, resources, deadlines):
     
-    """generate, save tasks"""
+    """generate, save tasks/ dependencies"""
     tasks = []
+    for i in range(len(WCETarray)):
+        tasks.append(Task(i, WCETarray[i], resources[i], deadlines[i]))
+    save_xml(tasks, fileLocation + '/taskset.xml')
+    
+    deps = []
     for i in range(len(dependencies)):
-        tasks.append(Task(i, WCETarray[i], deadlines[i], dependencies[i]))
-    save_xml(tasks, name)
+        deps.append(Dependency(dependencies[i][0], dependencies[i][1]))
+    save_dep_xml(deps, fileLocation + '/dependencies.xml')
     return True
 
 
@@ -52,13 +57,15 @@ def main():
         s = taskset_hyperparameters[app].tolist()
         numDependencyArray = dependenceGen.constructTaskDependencyDistribution(int(s[0]), int(s[1]), int(s[2]), int(s[3]), s[-1])
         DependencyList = dependenceGen.createDependenceLists(numDependencyArray)
-        for load in range(5, 11):
-            if not os.path.isfile('Tasksets/' + app + '_' + str(float(load)/10) + '.xml'):
-                [WCETArray, deadlineList] = WCETGen.constructWCETDistribution(int(s[0]), int(s[4]), s[5], s[6], s[7], int(s[8]), 
-                                                                    float(load)/10,  s[9],  s[10])
-                scenarioGeneration(DependencyList, WCETArray, deadlineList, app + '_' + str(float(load)/10))
+        for load in range(50, 101):
+            folder_loc = 'Tasksets/' + app + '_' + str(float(load)/100)
+            if not os.path.exists(folder_loc):
+                os.makedirs(folder_loc)
+                [WCETArray, deadlineList, resourceList] = WCETGen.constructWCETDistribution(int(s[0]), int(s[4]), s[5], s[6], s[7], int(s[8]), 
+                                                                    float(load)/100,  s[9],  s[10])
+                scenarioGeneration(folder_loc, DependencyList, WCETArray, resourceList, deadlineList)
 
-    # Format: [num_tasks, range of resources, min max and mean wcet, range of critical tasks, min max and mean dependencies] x 1000 simulations
+    # Format: [num_tasks, range of resources, min max and mean wcet, range of critical tasks, min max and mean dependencies] x 960 simulations
     synth = [4500, [2,5], [0.01, 30, 2], [200, 250], [1, 10, 5]]
     
     # For 960 iterations for validation of NXT Motion
@@ -67,16 +74,17 @@ def main():
     for iter in range(20):
         for processor in range(synth[1][0], synth[1][1]+1):
             for criticalTasks in range(synth[3][0], synth[3][1]+1, 5):
-                if not os.path.isfile('Tasksets/' + app + '_' + str(iter) + '_' + str(processor) + '_' + str(criticalTasks) + '.xml'):
+                folder_loc = 'Tasksets/' + app + '_' + str(iter) + '_' + str(processor) + '_' + str(criticalTasks)
+                if not os.path.exists(folder_loc):
+                    os.makedirs(folder_loc)
                     numDependencyArray = dependenceGenSynth.constructTaskDependencyDistribution(synth[0], synth[-1][-1]*synth[0], 
                                                                                 synth[-1][0], synth[-1][1], synth[-1][-1], s[-1])
                     DependencyList = dependenceGenSynth.createDependenceLists(numDependencyArray)
-                    deadline = 2 * synth[2][1] / s[5]
-                    [WCETArray, deadlineList] = WCETGenSynth.constructWCETDistribution(synth[0], processor, deadline, synth[2][0], synth[2][1],
+                    deadline = 2 * synth[2][2] * synth[0] / processor
+                    [WCETArray, deadlineList, resourceList] = WCETGenSynth.constructWCETDistribution(synth[0], processor, deadline, synth[2][0], synth[2][1],
                                                                                 synth[2][2], criticalTasks,  1,  0.5)
                     
-                    scenarioGeneration(DependencyList, WCETArray, deadlineList, app + 
-                                       '_' + str(iter) + '_' + str(processor) + '_' + str(criticalTasks))
+                    scenarioGeneration(folder_loc, DependencyList, WCETArray, resourceList, deadlineList)
                     
            
          
