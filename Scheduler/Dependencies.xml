@@ -1,0 +1,11 @@
+<dependencies>
+    <dependency pred = "0" succ = "1"/>
+    <dependency pred = "0" succ = "2"/>
+    <dependency pred = "0" succ = "3"/>
+    <dependency pred = "0" succ = "4"/>
+    <dependency pred = "0" succ = "5"/>
+    <dependency pred = "0" succ = "6"/>
+    <dependency pred = "3" succ = "5"/>
+    <dependency pred = "3" succ = "6"/>
+    <dependency pred = "4" succ = "6"/>
+</dependencies>
