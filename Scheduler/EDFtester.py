@@ -14,7 +14,7 @@ def main():
     # i=0   #For Vasilis
     # i=1   #For Daniil
     # i=2   #For Corniels
-    # i=3   #For Niels    
+    i=3   #For Niels    
     data_directory = os.getcwd() + r"\Tasksets"
     counter = 0
     total_files = 0
