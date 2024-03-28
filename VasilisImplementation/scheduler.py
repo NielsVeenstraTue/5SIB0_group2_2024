@@ -97,92 +97,117 @@ d_dict = convertDep2dict(d_xml)
 
 
 # Algorithm 2 Implementation
-def scheduler(tasks_list, dep_dict, ddt_dict):
+def scheduler(tasks_list, dep_dict, ddt_dict, n_cores):
     
     S = {}
     ST = ['0']
     ET = []
     i = 0
-
-    # Algorithm 2. Line 5
-    #while len(ST) != len(tasks_list):
-    
-
-    if (len(ST) != 0):
-        for key, value in dep_dict.items():
-            if key in ST:
-                for element in value:
-                    for task in tasks_list:
-                        if task['id'] == element:
-                            ET.append(task)
-                        else: continue
-    else:
-        ET = tasks_list
-    
-
-    # Algorithm 2. Line 6
-
-    min_id = None
-    min_value = float('inf')
-
-    for t in ET:
-        value = ddt_dict.get(t['id'])
-        if value is not None and value < min_value:
-            min_id = t['id']
-            min_value = value
-        
-    
-    # Algorithm 2. Line 7
-    
-    c_last_pred_t = 0
-
-    if (i):
-        pred_t_c_t_prime = []
-        for key, value in dep_dict.items():
-            if min_id in value:
-                for k, v in S.items():
-                    if k == key:
-                        pred_t_c_t_prime.append(k['end'])
-        
-        c_last_pred_t = max(pred_t_c_t_prime)
-
-
-    # Algorithm 2. Line 8
-    g_chosen = [] # TODO: Implement gaps. Should look like [[start,end],[start,end]]
-
-
-    # Algorithm 2. Lines 9-15
-    if g_chosen != None:
-        s_t = max(c_last_pred_t, g_chosen[0])
-    else:
-        c_last_r = 0 #TODO: Implement last completion time of resource 
-        s_t = max(c_last_pred_t, c_last_r)
+    gaps = []
 
     
-    # Algorithm 2. Lines 16-22
-    for t in ET:
-        if t['id'] == min_id:
-            e_t = t['e']
-        
-    c_t = s_t + e_t
-
-    for id, value_ddt in ddt_dict:
-        if id == min_id:
-            dd_t = value_ddt
+    while len(ST) != len(tasks_list):
     
-    if c_t > dd_t:
-        return 'Deadline miss. Task set unschedulable'
-    else:
+        # Algorithm 2. Line 5
+        if (len(ST) != 0):
+            for key, value in dep_dict.items():
+                if key in ST:
+                    for element in value:
+                        for task in tasks_list:
+                            if task['id'] == element:
+                                ET.append(task)
+                            else: continue
+        else:
+            ET = tasks_list
         
 
-    
-    #print(min_id)
-    #print(ET)
+        # Algorithm 2. Line 6
 
-    i += 0
+        min_id = None
+        min_value = float('inf')
+
+        for t in ET:
+            value = ddt_dict.get(t['id'])
+            if value is not None and value < min_value:
+                min_id = t['id']
+                min_value = value
+            
+        
+        # Algorithm 2. Line 7
+        
+        c_last_pred_t = 0
+
+        if (i):
+            pred_t_c_t_prime = []
+            for key, value in dep_dict.items():
+                if min_id in value:
+                    for k, v in S.items():
+                        if k == key:
+                            pred_t_c_t_prime.append(k['end'])
+            
+            c_last_pred_t = max(pred_t_c_t_prime)
+        else:
+            c_last_pred_t = 0
+
+        # Algorithm 2. Line 8
+        if gaps != []:
+            g_chosen = pass # TODO: Implement gaps. Should look like [[start,end],[start,end]]
+        else:
+            g_chosen = []
+
+        # Algorithm 2. Lines 9-15
+        if g_chosen != None or g_chosen == []:
+            s_t = max(c_last_pred_t, g_chosen[0])
+        else:
+            for task in ET:
+                if task["id"] == min_id:
+                    tasks_for_resource = S[task['r']]
+                    end_values = [S["end"] for t in tasks_for_resource.values()]
+                    max_end_value = max(end_values)
+
+
+            c_last_r = max_end_value #TODO: Implement last completion time of resource 
+            s_t = max(c_last_pred_t, c_last_r)
+
+        
+        # Algorithm 2. Lines 16-22
+        for t in ET:
+            if t['id'] == min_id:
+                e_t = t['e']
+            
+        c_t = s_t + e_t
+
+        for id, value_ddt in ddt_dict:
+            if id == min_id:
+                dd_t = value_ddt
+        
+        if c_t > dd_t:
+            return 'Deadline miss. Task set unschedulable by this algorithm.'
+        else:
+            # Algorithm 2. Line 20-22
+            for task in ET:
+                if task['id'] == min_id:
+                    S[task['r']][task['id']]['start'] = s_t
+                    S[task['r']][task['id']]['end'] = c_t
+                    S[task['r']][task['id']]['deadline'] = dd_t
+                    ST.append(task)
+                    ET.remove(task)
+
+                    for i in range(n_cores):
+                        gaps.append([])
+
+                    if c_t < dd_t:
+                        gaps[int(task['r'])].append([s_t, c_t])
+            
+
+
+        # Keeping track of loop iterations
+        i += 0
 
     # Returning the ready schedule
-    #return S
+    return S
 
-scheduler(t_xml, d_dict, DD_DICT_DUMMY)
+schedule = scheduler(t_xml, d_dict, DD_DICT_DUMMY)
+
+print(schedule)
 
