@@ -24,7 +24,7 @@ def dep2list(file):
     return dependencies
 
 
-def convertDep2dict(dependencies):
+def convertDep2Succ(dependencies):
     # Convert dependencies xml to working dictionary format
     predecessors = []
     successors = []
@@ -38,6 +38,26 @@ def convertDep2dict(dependencies):
             dictionary[pred].append(succ)
         else:
             dictionary[pred] = [succ]
+    
+    for key in dictionary:
+        dictionary[key].sort()
+         
+    return dictionary
+
+def convertDep2Pred(dependencies):
+    # Convert dependencies xml to working dictionary format
+    predecessors = []
+    successors = []
+    dictionary = {}
+    for id, task in enumerate(dependencies):
+        predecessors.append(task['pred'])
+        successors.append(task['succ'])
+    
+    for pred, succ in zip(predecessors, successors):
+        if succ in dictionary:
+            dictionary[succ].append(pred)
+        else:
+            dictionary[succ] = [pred]
     
     for key in dictionary:
         dictionary[key].sort()
@@ -98,16 +118,11 @@ def computeDueDatePerResource(task_set, dependencies, tasks_per_resource, depend
         
     return due_dates
 
-
-taskset = xml2list(T_xml)
-deps = dep2list(D_xml)
-dependencies = convertDep2dict(deps)
-print(dependencies)
-numResources = max([int(task["r"]) for task in taskset]) + 1
-tasks_per_resource, dependencies_per_resource = splitTasksPerResource(taskset, dependencies, numResources)
-print(tasks_per_resource)
-print(dependencies_per_resource)
-due_dates = computeDueDatePerResource(taskset, dependencies, tasks_per_resource, dependencies_per_resource, numResources)
-print(due_dates)
-
-
+def dueDatesCalculation(taskset, dependencies):
+    taskset = xml2list(taskset)
+    deps = dep2list(dependencies)
+    dependencies = convertDep2Succ(deps)
+    numResources = max([int(task["r"]) for task in taskset]) + 1
+    tasks_per_resource, dependencies_per_resource = splitTasksPerResource(taskset, dependencies, numResources)
+    due_dates = computeDueDatePerResource(taskset, dependencies, tasks_per_resource, dependencies_per_resource, numResources)
+    return taskset, dependencies, numResources, due_dates

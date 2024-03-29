@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup as bs
 import ast
 from pprint import pprint
 
-FILES = ["./Scheduler/dummy_1.xml", "./Scheduler/Dependencies.xml"]
+# FILES = ["./Scheduler/dummy_1.xml", "./Scheduler/Dependencies.xml"]
 
 class Task:
     def __init__(self, task_id, execution_time, deadline, resource, predecessors=None):
