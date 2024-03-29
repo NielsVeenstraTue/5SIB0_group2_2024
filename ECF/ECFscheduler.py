@@ -55,7 +55,15 @@ def ECF(taskset_file, dependencies_file):
         before) and the potential new CALAP = CALAP_pred - EXEC_pred """
         for pred in tasks[i]['dep']:
             tasks[pred]['CALAP'] = min(tasks[pred]['CALAP'], tasks[i]['CALAP'] - tasks[i]['e'])
-    return tasks
+
+    CALAP_dict = {}
+
+    for i in range(numTasks):
+        # save to dict
+        CALAP_dict[tasks[i]['id']] = tasks[i]['CALAP']
+
+    return CALAP_dict
 
 
-tasks = ECF('dummy_paper.xml', 'Dependencies_paper.xml')
+CALAP_dict = ECF('dummy_paper.xml', 'Dependencies_paper.xml')
+
