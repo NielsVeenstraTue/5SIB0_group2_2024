@@ -3,8 +3,8 @@ from collections import OrderedDict
 import ast
 import os
 
-T_xml = os.getcwd() + r"\VasilisImplementation\dummy_1.xml"
-D_xml = os.getcwd() + r"\VasilisImplementation\Dependencies.xml"
+T_xml = os.getcwd() + r"\EDDF\dummy_1.xml"
+D_xml = os.getcwd() + r"\EDDF\Dependencies.xml"
 
 
 def xml2list(file):
@@ -125,4 +125,5 @@ def dueDatesCalculation(taskset, dependencies):
     numResources = max([int(task["r"]) for task in taskset]) + 1
     tasks_per_resource, dependencies_per_resource = splitTasksPerResource(taskset, dependencies, numResources)
     due_dates = computeDueDatePerResource(taskset, dependencies, tasks_per_resource, dependencies_per_resource, numResources)
+    #print(due_dates)
     return taskset, dependencies, numResources, due_dates

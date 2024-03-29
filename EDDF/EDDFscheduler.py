@@ -24,6 +24,7 @@ def scheduler(tasks_list, successors, predecessors, ddt_dict, n_cores):
         min_id = None
         duedate_t = float('inf')
         for t in enabledTasks:
+
             value = float(ddt_dict.get(t['id']))
             if value is not None and value < duedate_t:
                 # Get task ID and duedate
@@ -50,11 +51,13 @@ def scheduler(tasks_list, successors, predecessors, ddt_dict, n_cores):
         # Algorithm 2. Line 8
         if len(gaps[resource]) != 0:
             min_gap_idx = len(gaps[resource])-1
+            wentInsideIfCondition = False
             for gap_idx in range(len(gaps[resource])):
                 if max(c_last_pred_t, gaps[resource][gap_idx][0]) + wcet <= gaps[resource][gap_idx][1] and min_gap_idx < gap_idx:
                     min_gap_idx = gap_idx
-                else:
-                    min_gap_idx = None
+                    wentInsideIfCondition = True
+            if not wentInsideIfCondition:
+                min_gap_idx = None
         else:
             min_gap_idx = None
 
@@ -116,6 +119,6 @@ def EDDF(taskset, dependencies):
     schedule = scheduler(taskset, successors, predecessors, due_dates, numResources)
     return schedule
 
-#T_xml = os.getcwd() + r"\VasilisImplementation\dummy_1.xml"
-#D_xml = os.getcwd() + r"\VasilisImplementation\Dependencies.xml"
-#EDDF(T_xml, D_xml)
+T_xml = os.getcwd() + r"\EDDF\dummy_1.xml"
+D_xml = os.getcwd() + r"\EDDF\Dependencies.xml"
+EDDF(T_xml, D_xml)
