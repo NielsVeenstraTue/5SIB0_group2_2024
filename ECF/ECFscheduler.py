@@ -5,35 +5,6 @@ from pprint import pprint
 
 FILES = ["dummy_1.xml", "Dependencies.xml"]
 
-class Task:
-    def __init__(self, task_id, execution_time, deadline, resource, predecessors=None):
-        self.task_id = task_id
-        self.execution_time = execution_time
-        self.resource = resource
-        self.deadline = deadline
-        self.predecessors = predecessors if predecessors else []
-
-def convert2Class(taskset, predecessors):
-    classSet = []
-    for task in taskset:
-        if int(task["id"]) in predecessors.keys():
-            firstKey = list(predecessors.keys())[0]
-            firstVal = list(predecessors[firstKey])
-            if firstKey == int(task["id"]):
-                # Task ID, Execution Time, Deadline, Resource, Predecessors
-                list_of_pred = [int(x) for x in firstVal]
-                classSet.append(Task(int(task["id"]), float(task["e"]), float(task["d"]), int(task["r"]), list_of_pred))
-                predecessors.pop(list(predecessors)[0])
-        else:
-            classSet.append(Task(int(task["id"]), float(task["e"]), float(task["d"]), int(task["r"]), ))
-    return classSet
-
-def convert_dependencies_to_dict(dependencies)->dict:
-    return {'pred': int(dependencies['pred']), 'succ':int(dependencies['succ'])}
-
-def convert_taskset_to_dict(taskset)->dict:
-    return {'id':int(taskset['id']), 'e':float(taskset['e']), 'r':int(taskset['r']), 'd':float(taskset['d'])}
-
 def xml2list(file):
     # Get the file as input
     with open(file, 'r') as f:
@@ -56,51 +27,6 @@ def dep2list(file):
         dependencies_set.append({'pred': int(dep['pred']), 'succ':int(dep['succ'])})
     return dependencies_set
 
-def convertDep2Succ(dependencies):
-    # Convert dependencies xml to working dictionary format
-    predecessors = []
-    successors = []
-    dictionary = {}
-    for id, task in enumerate(dependencies):
-        predecessors.append(task['pred'])
-        successors.append(task['succ'])
-
-    for pred, succ in zip(predecessors, successors):
-        if pred in dictionary:
-            dictionary[pred].append(succ)
-        else:
-            dictionary[pred] = [succ]
-
-    for key in dictionary:
-        dictionary[key].sort()
-
-    return dictionary
-
-def convertDep2Pred(dependencies):
-    # Convert dependencies xml to working dictionary format
-    predecessors = []
-    successors = []
-    dictionary = {}
-    for id, task in enumerate(dependencies):
-        predecessors.append(task['pred'])
-        successors.append(task['succ'])
-
-    for pred, succ in zip(predecessors, successors):
-        if succ in dictionary:
-            dictionary[succ].append(pred)
-        else:
-            dictionary[succ] = [pred]
-
-    for key in dictionary:
-        dictionary[key].sort()
-
-    return dictionary
-
-def find_directory_by_id(directories, name):
-    for directory in directories:
-        if directory["id"] == name:
-            return directory
-    return None
 
 
 taskset_file = 'dummy_paper.xml'
