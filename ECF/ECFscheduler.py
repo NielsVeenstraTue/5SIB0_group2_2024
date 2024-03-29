@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup as bs
 import ast
 from pprint import pprint
 
-FILES = ["dummy_1.xml", "Dependencies.xml"]
 
 def xml2list(file):
     # Get the file as input
@@ -15,6 +14,7 @@ def xml2list(file):
     for t in tasks:
         task_set.append({'id':int(t['id']), 'e':float(t['e']), 'r':int(t['r']), 'd':float(t['d'])})
     return task_set
+
 
 def dep2list(file):
     # Get the file as input
@@ -28,43 +28,34 @@ def dep2list(file):
     return dependencies_set
 
 
+def ECF(taskset_file, dependencies_file):
+    """Read taskset and dependencies, """
+    taskset = xml2list(taskset_file)
+    numResources = max([int(task["r"]) for task in taskset]) + 1
+    deps = dep2list(dependencies_file)
+    # predecessors = convertDep2Pred(deps)
+    numTasks = len(taskset)
 
-taskset_file = 'dummy_paper.xml'
-dependencies_file = 'Dependencies_paper.xml'
-
-
-# def ECF(taskset_file, dependencies_file):
-taskset = xml2list(taskset_file)
-numResources = max([int(task["r"]) for task in taskset]) + 1
-deps = dep2list(dependencies_file)
-# predecessors = convertDep2Pred(deps)
-numTasks = len(taskset)
-
-tasks = []
-for i in range(numTasks):
-    # Store tasks to a format that can be used
-    tasks.append(dict(taskset[i].items()))
-    tasks[i]['dep'] = []
-    # tasks[i]['scheduled'] = 0
-    # tasks[i]['tStart'] = 0
-    tasks[i]['CALAP'] = tasks[i]['d'] # CALAP = min(CALAP_successor - exec_successor, deadline)
+    tasks = []
+    for i in range(numTasks):
+        # Store tasks to a format that can be used
+        tasks.append(dict(taskset[i].items()))
+        tasks[i]['dep'] = []
+        # tasks[i]['scheduled'] = 0
+        # tasks[i]['tStart'] = 0
+        tasks[i]['CALAP'] = tasks[i]['d'] # CALAP = min(CALAP_successor - exec_successor, deadline)
 
 
-for i in range(len(deps)):
-    # add the dependencies, task[i]['dep'] should be done before i can start
-    tasks[deps[i]['succ']]['dep'].append(deps[i]['pred'])
+    for i in range(len(deps)):
+        # add the dependencies, task[i]['dep'] should be done before i can start
+        tasks[deps[i]['succ']]['dep'].append(deps[i]['pred'])
 
-for i in range(numTasks-1, 0, -1):
-    """Assign CALAP, working backwards. Assigned CALAP is the minimum of the current CALAP (deadline of assigned 
-    before) and the potential new CALAP = CALAP_pred - EXEC_pred """
-    for pred in tasks[i]['dep']:
-        tasks[pred]['CALAP'] = min(tasks[pred]['CALAP'], tasks[i]['CALAP'] - tasks[i]['e'])
-        # print(pred)
-
-    # schedule = partitioned_edf_scheduler(taskset, numResources)
-    # return schedule
+    for i in range(numTasks-1, 0, -1):
+        """Assign CALAP, working backwards. Assigned CALAP is the minimum of the current CALAP (deadline of assigned 
+        before) and the potential new CALAP = CALAP_pred - EXEC_pred """
+        for pred in tasks[i]['dep']:
+            tasks[pred]['CALAP'] = min(tasks[pred]['CALAP'], tasks[i]['CALAP'] - tasks[i]['e'])
+    return tasks
 
 
-
-# if __name__ == '__main__':
-#     ECF(FILES[0], FILES[1])
+tasks = ECF('dummy_paper.xml', 'Dependencies_paper.xml')
