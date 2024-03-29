@@ -60,7 +60,7 @@ def ECF(taskset_file, dependencies_file):
 
     for i in range(numTasks):
         # save to dict
-        CALAP_dict[tasks[i]['id']] = tasks[i]['CALAP']
+        CALAP_dict[str(tasks[i]['id'])] = tasks[i]['CALAP']
 
     return CALAP_dict
 
