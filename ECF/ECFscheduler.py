@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup as bs
-import ast
-import os
+import time
 import cCALAP
 
 
@@ -10,7 +9,8 @@ def scheduler(tasks_list, successors, predecessors, ddt_dict, n_cores):
     scheduledTasks = {}
     enabledTasks = []
     gaps = [[] for _ in range(n_cores)]
-
+    makespan = 0
+    
     # Algorithm 2. Line 5
     for task in tasks_list:
         # If the task does not have a predecessor at all
@@ -75,8 +75,10 @@ def scheduler(tasks_list, successors, predecessors, ddt_dict, n_cores):
         # Algorithm 2. Lines 16-22
         completion_time = starting_time + wcet
         if completion_time > duedate_t:
-            return None
+            return False, makespan
         else:
+            # Update makespan
+            if makespan < completion_time: makespan = completion_time
             # Need to create new gaps
             # If there was a gap
             if min_gap_idx != None:
@@ -109,14 +111,21 @@ def scheduler(tasks_list, successors, predecessors, ddt_dict, n_cores):
                         enabledTasks.append(tasks_list[int(task)])
             enabledTasks.remove(tasks_list[int(min_id)])
 
-    return schedule       
+    return schedule, makespan    
             
 def ECF(taskset, dependencies):
+    start = time.time()
     taskset, successors, numResources, CALAPvals = cCALAP.CALAPCalculation(taskset, dependencies)
+    end = time.time()
+    CALAPCalculationTime = end - start
+    
+    start = time.time()
     deps = cCALAP.dep2list(dependencies)
     predecessors = cCALAP.convertDep2Pred(deps)
-    schedule = scheduler(taskset, successors, predecessors, CALAPvals, numResources)
-    return schedule
+    schedule, makespan = scheduler(taskset, successors, predecessors, CALAPvals, numResources)
+    end = time.time()
+    schedulerTime = end - start
+    return schedule, makespan, CALAPCalculationTime, schedulerTime
 
 #T_xml = os.getcwd() + r"\ECF\dummy_1.xml"
 #D_xml = os.getcwd() + r"\ECF\Dependencies.xml"

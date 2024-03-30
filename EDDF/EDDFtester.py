@@ -1,6 +1,5 @@
 import EDDFscheduler
 import os
-import time
 import pandas as pd
 
 def write_list(a_list, write_loc):
@@ -21,7 +20,7 @@ def main():
     if os.path.exists(os.path.join(data_directory, "EDDF_results.csv")):
         df = pd.read_csv(os.path.join(data_directory, "EDDF_results.csv"))
     else:
-        df= pd.DataFrame({"name": [], "schedulable": [], "time":[]})
+        df= pd.DataFrame({"name": [], "schedulable": [], "makespan":[], "dueDatesCalculationTime": [], "schedulerTime": []})
         df.to_csv(os.path.join(data_directory, "EDDF_results.csv"), index=False)
     
     folder_list = []
@@ -35,10 +34,8 @@ def main():
         print(name)
         if not df.isin([name]).any().any():
             total_files +=1
-            start = time.time()
-            schedule = EDDFscheduler.EDDF(os.path.join(subdir, file_loc[0]), os.path.join(subdir, file_loc[1])) # 0: taskset, 1: dependencies
-            end = time.time()
-            temp = {"name": [name], "schedulable": [not(not(schedule))], 'time':[end-start]}
+            schedule, makespan, dueDatesCalculationTime, schedulerTime = EDDFscheduler.EDDF(os.path.join(subdir, file_loc[0]), os.path.join(subdir, file_loc[1])) # 0: taskset, 1: dependencies
+            temp = {"name": [name], "schedulable": [not(not(schedule))], "makespan":[makespan], "dueDatesCalculationTime": [dueDatesCalculationTime], "schedulerTime":[schedulerTime]}
             df_temp = pd.DataFrame(temp)
             df_temp.to_csv(os.path.join(data_directory, "EDDF_results.csv"), mode='a', index=False, header=False)
             df = pd.concat([df, df_temp], ignore_index=True)
@@ -46,7 +43,7 @@ def main():
         
     return float(counter), float(total_files)
 
-if __name__ == "__main__":
+""" if __name__ == "__main__":
     schedules, inTotal = main()
     print("Schedulability performance: ", schedules/inTotal*100, "%")
-    
+     """

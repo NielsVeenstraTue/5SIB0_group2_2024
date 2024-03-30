@@ -1,6 +1,6 @@
 import copy
 from bs4 import BeautifulSoup as bs
-import ast
+import time
 from pprint import pprint
 
 # FILES = ["./Scheduler/dummy_1.xml", "./Scheduler/Dependencies.xml"]
@@ -108,7 +108,7 @@ def partitioned_edf_scheduler(taskset, num_processors):
     taskset_copy = copy.deepcopy(taskset)
     # Initialize schedule
     schedule = [[] for _ in range(num_processors)]
-
+    makespan = 0
     # Keep track of completed tasks
     completed_tasks = set()
     
@@ -132,7 +132,7 @@ def partitioned_edf_scheduler(taskset, num_processors):
                         completed_tasks.add(task.task_id)
                         taskset_copy.remove(task)
                         break
-                    else: return None
+                    else: return None, makespan
                 else:   
                     for pred in pred_list:
                         if schedule[task.resource]: sameResourceFinishTime = schedule[task.resource][-1]["stopTime"]
@@ -145,21 +145,25 @@ def partitioned_edf_scheduler(taskset, num_processors):
                                 finishTime = max(sameResourceFinishTime, tempFinishTime)
                     # Check if the task can be scheduled within the deadline
                     if finishTime + task.execution_time <= task.deadline:
+                        # Update makespan
+                        makespan = max(makespan, finishTime + task.execution_time)
                         # Assign task to the earliest time
                         schedule[task.resource].append({"id": task.task_id, "resource": task.resource, "startTime": finishTime, "stopTime": finishTime + task.execution_time})
                         # Mark task as completed
                         completed_tasks.add(task.task_id)
                         taskset_copy.remove(task)
                         break
-                    else: return None
-    return schedule
+                    else: return False, makespan
+    return schedule, makespan
 
 def EDF(taskset_file, dependencies_file):
+    start = time.time()
     taskset = xml2list(taskset_file)
     numResources = max([int(task["r"]) for task in taskset]) + 1
     deps = dep2list(dependencies_file)
     predecessors = convertDep2Pred(deps)
     taskset = convert2Class(taskset, predecessors)
-    schedule = partitioned_edf_scheduler(taskset, numResources)
-    return schedule
+    schedule, makespan = partitioned_edf_scheduler(taskset, numResources)
+    end = time.time()
+    return schedule, makespan, end - start
 

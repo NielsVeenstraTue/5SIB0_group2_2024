@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup as bs
-import ast
+import time
 import os
 import cDDPR
 
@@ -10,7 +10,7 @@ def scheduler(tasks_list, successors, predecessors, ddt_dict, n_cores):
     scheduledTasks = {}
     enabledTasks = []
     gaps = [[] for _ in range(n_cores)]
-
+    makespan = 0
     # Algorithm 2. Line 5
     for task in tasks_list:
         # If the task does not have a predecessor at all
@@ -76,8 +76,10 @@ def scheduler(tasks_list, successors, predecessors, ddt_dict, n_cores):
         # Algorithm 2. Lines 16-22
         completion_time = starting_time + wcet
         if completion_time > duedate_t:
-            return None
+            return False, makespan
         else:
+            # Update makespan
+            if makespan < completion_time: makespan = completion_time
             # Need to create new gaps
             # If there was a gap
             if min_gap_idx != None:
@@ -110,14 +112,21 @@ def scheduler(tasks_list, successors, predecessors, ddt_dict, n_cores):
                         enabledTasks.append(tasks_list[int(task)])
             enabledTasks.remove(tasks_list[int(min_id)])
 
-    return schedule       
+    return schedule, makespan   
             
 def EDDF(taskset, dependencies):
+    start = time.time()
     taskset, successors, numResources, due_dates = cDDPR.dueDatesCalculation(taskset, dependencies)
+    end = time.time()
+    dueDatesCalculationTime = end - start
+    
+    start = time.time()
     deps = cDDPR.dep2list(dependencies)
     predecessors = cDDPR.convertDep2Pred(deps)
-    schedule = scheduler(taskset, successors, predecessors, due_dates, numResources)
-    return schedule
+    schedule, makespan = scheduler(taskset, successors, predecessors, due_dates, numResources)
+    end = time.time()
+    schedulerTime = end - start
+    return schedule, makespan, dueDatesCalculationTime, schedulerTime
 
 T_xml = os.getcwd() + r"\EDDF\dummy_1.xml"
 D_xml = os.getcwd() + r"\EDDF\Dependencies.xml"
