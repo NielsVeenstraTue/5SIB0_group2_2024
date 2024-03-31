@@ -130,4 +130,5 @@ def EDDF(taskset, dependencies):
 
 T_xml = os.getcwd() + r"\EDDF\dummy_1.xml"
 D_xml = os.getcwd() + r"\EDDF\Dependencies.xml"
-EDDF(T_xml, D_xml)
+schedule, _, _, _ = EDDF(T_xml, D_xml)
+print(schedule)
