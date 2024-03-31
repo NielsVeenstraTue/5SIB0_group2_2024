@@ -12,10 +12,33 @@ def main():
     dfEDDF = pd.read_csv(EDDF_data_loc)
     
     name_list = list()
+    industrial_name_list = [[] for _ in range(4)]
     for ind in dfECF.index:
         name = dfECF["name"][ind]
-        if name[:11] == "NXT Motion_" and name[12] != "." : name_list.append(ind)
-    
+        if name[:11] == "NXT Motion_":
+            if name[12] != "." : name_list.append(ind)
+            else: industrial_name_list[0].append(ind)
+        elif name[:8] == "Flexray_": industrial_name_list[2].append(ind)
+        elif name[:25] == "NXT Motion (specialized)_": industrial_name_list[1].append(ind)
+        elif name[:28] == "Projection optics box (POB)_": industrial_name_list[3].append(ind)
+
+    duedateList = [0]*4
+    scheduleTimeList = [0]*4
+    for i in range(4):
+        counter = 0
+        for ind in industrial_name_list[i]:
+            if dfEDDF["schedulable"][ind]: 
+                counter += 1
+                duedateList[i] += float(dfEDDF["dueDatesCalculationTime"][ind])
+                scheduleTimeList[i] += float(dfEDDF["schedulerTime"][ind])
+        duedateList[i] /= counter
+        scheduleTimeList[i] /= counter
+
+    print("duedates: ", duedateList)
+    print("scheduleTimes: ", scheduleTimeList)
+
+
+
     scedulability = [[0,0],[0,0]]
     makespanDifference = [0, 0, 0]
     makespan_EDDF = []
