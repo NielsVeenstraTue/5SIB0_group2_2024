@@ -52,6 +52,15 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
+sys.path.append('./EDDF')
+import EDDFscheduler
+
+T_xml = r"C:\Users\vasri\OneDrive - TU Eindhoven\Documents\TUe Courses\First Year\3rd Quartile\Electronic design automation\Project\5SIB0_group2_2024\Tasksets\NXT Motion_0.57" + r"\taskset.xml"
+D_xml = r"C:\Users\vasri\OneDrive - TU Eindhoven\Documents\TUe Courses\First Year\3rd Quartile\Electronic design automation\Project\5SIB0_group2_2024\Tasksets\NXT Motion_0.57" + r"\dependencies.xml"
+
+#tasks, _, _, _ = EDDFscheduler.EDDF(T_xml, D_xml)
+
 
 tasks = [{'id': '0', 'e': 1.0, 'r': 0, 'd': 10.0, 's': 0, 'c': 1.0}, 
          {'id': '2', 'e': 2.0, 'r': 1, 'd': 3.0, 's': 1.0, 'c': 3.0}, 

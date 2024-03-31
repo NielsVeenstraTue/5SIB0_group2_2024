@@ -128,7 +128,8 @@ def EDDF(taskset, dependencies):
     schedulerTime = end - start
     return schedule, makespan, dueDatesCalculationTime, schedulerTime
 
-T_xml = os.getcwd() + r"\EDDF\dummy_1.xml"
-D_xml = os.getcwd() + r"\EDDF\Dependencies.xml"
-schedule, _, _, _ = EDDF(T_xml, D_xml)
-print(schedule)
+#T_xml = r"C:\Users\vasri\OneDrive - TU Eindhoven\Documents\TUe Courses\First Year\3rd Quartile\Electronic design automation\Project\5SIB0_group2_2024\Tasksets\NXT Motion_0.57" + r"\taskset.xml"
+#D_xml = r"C:\Users\vasri\OneDrive - TU Eindhoven\Documents\TUe Courses\First Year\3rd Quartile\Electronic design automation\Project\5SIB0_group2_2024\Tasksets\NXT Motion_0.57" + r"\dependencies.xml"
+
+#schedule, _, _, _ = EDDF(T_xml, D_xml)
+#print(schedule)
