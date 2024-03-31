@@ -1,7 +1,19 @@
 import os
 import pandas as pd
+import numpy as np
 from statsmodels.stats.contingency_tables import mcnemar
 from scipy import stats
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+
+def findPerformance(nameList, results, core, critTask):
+    performance = 0
+    for ind in nameList:
+        name = results["name"][ind]
+        if name[-5] == str(core) and name[-3:] == str(critTask) and results["schedulable"][ind]: 
+            performance += 1
+    return performance*5
 
 def main():
    
@@ -59,4 +71,34 @@ def main():
     print(scedulability, makespanDifference)
     print(mcnemar(scedulability, exact=False, correction=False))
     print(stats.ttest_rel(makespan_EDDF, makespan_ECF))
+    
+    
+    
+
+    cores = np.linspace(2, 5, 4)
+    critical_tasks = np.linspace(200, 250, 11)
+    X, Y = np.meshgrid(cores, critical_tasks) 
+    print(X, Y)
+    print(len(X), len(X[0]))
+    Z = np.zeros((11,4))
+    for i in range(11):
+        for j in range(4):
+            Z[i,j] = findPerformance(name_list, dfEDDF, int(X[i,j]), int(Y[i,j]))
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Plot surface
+    surf = ax.plot_surface(X, Y, Z, cmap='viridis')
+    ax.set_xlabel('Number of cores')
+    ax.set_ylabel('Number of critical tasks')
+    ax.set_zlabel('Performance (%)')
+    ax.set_title('Performance of EDDF for synthetic task sets over 20 iterations per configuration')
+
+    # Add a color bar which maps values to colors
+    fig.colorbar(surf)
+
+    plt.show()
+
+    
 main()
