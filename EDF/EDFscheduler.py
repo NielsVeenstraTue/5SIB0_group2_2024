@@ -123,11 +123,11 @@ def partitioned_edf_scheduler(taskset, num_processors):
                 for task_temp in taskset:
                     if task_temp.task_id in task.predecessors: pred_list.append(task_temp)
                 if not pred_list:
-                    if schedule[task.resource]: finishTime = schedule[task.resource][-1]["stopTime"]
+                    if schedule[task.resource]: finishTime = schedule[task.resource][-1]["c"]
                     else: finishTime = 0
                     if finishTime + task.execution_time <= task.deadline:
                         # Assign task to the earliest time
-                        schedule[task.resource].append({"id": task.task_id, "resource": task.resource, "startTime": finishTime, "stopTime": finishTime + task.execution_time})
+                        schedule[task.resource].append({"id": task.task_id, "e": task.execution_time, "r": task.resource, "d": task.deadline, "s": finishTime, "c": finishTime + task.execution_time})
                         # Mark task as completed
                         completed_tasks.add(task.task_id)
                         taskset_copy.remove(task)
@@ -135,26 +135,30 @@ def partitioned_edf_scheduler(taskset, num_processors):
                     else: return None, makespan
                 else:   
                     for pred in pred_list:
-                        if schedule[task.resource]: sameResourceFinishTime = schedule[task.resource][-1]["stopTime"]
+                        if schedule[task.resource]: sameResourceFinishTime = schedule[task.resource][-1]["c"]
                         else: sameResourceFinishTime = 0
                         for processor in range(num_processors):
                             if pred.resource == processor: 
                                 curr_schedule = schedule[processor]
                                 lastPredDir = find_directory_by_id(curr_schedule, pred.task_id)
-                                tempFinishTime = lastPredDir["stopTime"]
+                                tempFinishTime = lastPredDir["c"]
                                 finishTime = max(sameResourceFinishTime, tempFinishTime)
                     # Check if the task can be scheduled within the deadline
                     if finishTime + task.execution_time <= task.deadline:
                         # Update makespan
                         makespan = max(makespan, finishTime + task.execution_time)
                         # Assign task to the earliest time
-                        schedule[task.resource].append({"id": task.task_id, "resource": task.resource, "startTime": finishTime, "stopTime": finishTime + task.execution_time})
+                        schedule[task.resource].append({"id": task.task_id, "e": task.execution_time, "r": task.resource, "d": task.deadline, "s": finishTime, "c": finishTime + task.execution_time})
                         # Mark task as completed
                         completed_tasks.add(task.task_id)
                         taskset_copy.remove(task)
                         break
                     else: return False, makespan
-    return schedule, makespan
+    scheduler = []
+    for i in range(len(schedule)):
+        for x in schedule[i]:
+            scheduler.append(x)
+    return scheduler, makespan
 
 def EDF(taskset_file, dependencies_file):
     start = time.time()
